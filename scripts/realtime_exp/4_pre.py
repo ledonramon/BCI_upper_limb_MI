@@ -36,8 +36,8 @@ def execution(pipeline_type, list_of_freq_lim, freq_limits_names_list, filt_orde
     # INIT
     sampling_frequency = 250 
     electrode_names =  ['FZ', 'C3', 'CZ', 'C4', 'PZ', 'PO7', 'OZ', 'PO8']
-    folder_path = Path(f'./scripts/realtime_exp\Expdata\Subjects\wet\{subject}\{session}\openloop')
-    result_path = Path(f'./scripts/realtime_exp\intermediate_files/{session}_CSP')
+    folder_path = Path(f'./scripts/cl\Expdata\Subjects\dry\{subject}\{session}\openloop')
+    result_path = Path(f'./scripts/cl\intermediate_files/{session}')
     result_path.mkdir(exist_ok=True, parents=True)  
     dataset_full = {}
 
@@ -79,10 +79,10 @@ def execution(pipeline_type, list_of_freq_lim, freq_limits_names_list, filt_orde
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Run offline BCI analysis experiments.")
-    parser.add_argument("--pline", nargs='+', default=['deep'], help="The variant of pipelines used for after preprocessing. \
+    parser.add_argument("--pline", nargs='+', default=['csp'], help="The variant of pipelines used for after preprocessing. \
     This variable is a list containing the name of the variants. Options are: 'csp', 'riemann', 'deep'")
     parser.add_argument("--subjects", nargs='+', default=['X02'], help="The variant of pipelines used. \
     This variable is a list containing the name of the variants. Options are in the data folder.")
-    parser.add_argument("--session", type=str, default='session4', help="The session number of closed loop experiments.")
+    parser.add_argument("--session", type=str, default='session1', help="The session number of closed loop experiments.")
     FLAGS, unparsed = parser.parse_known_args()
     main()
