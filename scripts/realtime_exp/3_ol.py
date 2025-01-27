@@ -5,13 +5,13 @@ from numpy.random import random, shuffle
 from datetime import date
 from pathlib import Path
 import os
-from pylsl import StreamInlet, resolve_stream
+from pylsl import StreamInlet, resolve_streams
 
 # INIT exp data
 expName = 'openloop'
-exType = 'wet'
-expInfo = {'participant': 'X02','type': exType, 'sessionNum': 'session4'}
-result_path = Path(f'scripts/realtime_exp/Expdata/Subjects/'+exType+'/'+expInfo['participant']+'/'+expInfo['sessionNum']+'/'+expName+'/')
+exType = 'dry'
+expInfo = {'participant': 'X02','type': exType, 'sessionNum': 'session1'}
+result_path = Path(f'scripts/cl/Expdata/Subjects/'+exType+'/'+expInfo['participant']+'/'+expInfo['sessionNum']+'/'+expName+'/')
 result_path.mkdir(exist_ok=True, parents=True)
 
 
@@ -93,7 +93,7 @@ Blank = visual.ImageStim(
 
 # below code is for initializing the streaming layer which will help us capture data later
 finished = False
-streams = resolve_stream()
+streams = resolve_streams()
 inlet = StreamInlet(streams[0])
 sig_tot = ''
 
@@ -138,7 +138,7 @@ event.waitKeys(keyList=['return'])
 
 # image list with labels for showing randomly and storing in the database
 # creating cue list
-img_list = [('realtime_exp/VC_Relax.jpg',0),('realtime_exp/VC_Right.jpg',1),('realtime_exp/VC_Left.jpg',2)]*2
+img_list = [('scripts/realtime_exp/VC_Relax.jpg',0),('scripts/realtime_exp/VC_Right.jpg',1),('scripts/realtime_exp/VC_Left.jpg',2)]*2
 trials = len(img_list)
 np.random.shuffle(img_list)
 # calculating run time to shut off data capturing

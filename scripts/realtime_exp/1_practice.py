@@ -1,4 +1,4 @@
-from pylsl import StreamInlet, resolve_stream
+from pylsl import StreamInlet, resolve_streams
 from psychopy import  visual, core, event
 import numpy as np
 import pandas as pd
@@ -9,9 +9,9 @@ import os
 
 # INIT exp data
 expName = 'practice'
-exType = 'wet'
-expInfo = {'participant': 'X02','type': exType, 'sessionNum': 'session4'}
-result_path = Path(f'realtime_exp/Expdata/Subjects/'+exType+'/'+expInfo['participant']+'/'+expInfo['sessionNum']+'/'+expName+'/')
+exType = 'dry'
+expInfo = {'participant': 'X01','type': exType, 'sessionNum': 'session1'}
+result_path = Path(f'scripts/realtime_exp/Expdata/Subjects/'+exType+'/'+expInfo['participant']+'/'+expInfo['sessionNum']+'/'+expName+'/')
 result_path.mkdir(exist_ok=True, parents=True)
 
 
@@ -82,7 +82,7 @@ Blank = visual.ImageStim(
     texRes=128.0, interpolate=True, depth=-1.0)
 
 finished = False
-streams = resolve_stream()
+streams = resolve_streams()
 inlet = StreamInlet(streams[0])
 
 # Auto updating trial numbers

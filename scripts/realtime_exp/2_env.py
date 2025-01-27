@@ -4,12 +4,12 @@ from numpy.random import random, shuffle
 from datetime import date
 from pathlib import Path
 import os
-from pylsl import StreamInlet, resolve_stream
+from pylsl import StreamInlet, resolve_streams
 
 # INIT exp data
 expName = 'Envdata'
-exType = 'wet'
-expInfo = {'participant': 'X02','type': exType, 'sessionNum': 'session4'}
+exType = 'dry'
+expInfo = {'participant': 'X01','type': exType, 'sessionNum': 'session1'}
 result_path = Path(f'scripts/cl/Expdata/Subjects/'+exType+'/'+expInfo['participant']+'/'+expInfo['sessionNum']+'/'+expName+'/')
 result_path.mkdir(exist_ok=True, parents=True)
 
@@ -51,7 +51,7 @@ ten_sec = ten_sec = visual.ShapeStim(
 finished = False
 save_update = 1
 stream_timestamp = 1000
-streams = resolve_stream()
+streams = resolve_streams()
 inlet = StreamInlet(streams[0])
 sig_tot = ''
 i = 0
