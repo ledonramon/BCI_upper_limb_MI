@@ -10,3 +10,5 @@ pretrain_models
 results
 tests
 wandb
+*.csv
+*.pyc
