@@ -68,7 +68,7 @@ class EEGNET(nn.Module):
 
 def data_setup(config):
     print(f'Adding data for {config.test_subject}...')
-    testsubj_path = Path(f'./data/openloop/intermediate_datafiles/preprocess/TL_1_100Hz/{config.test_subject}_deep.pkl')
+    testsubj_path = Path(f'./data/openloop/intermediate_datafiles/preprocess/elec_exp/riemann/{config.test_subject}_riemann.pkl') #adjust pipelinetype
     X_train, y_train, X_val, y_val, X_test, y_test = [], [], [], [], [], []
     print(testsubj_path)
     a_file = open(testsubj_path, "rb")
@@ -90,9 +90,13 @@ def data_setup(config):
                 elif df in config.test_trials:
                     X_test.append(X[df][segment])
                     y_test.append(y[df][segment])  
+        print('loop for:', df)
         print(f'Current length of X train: {len(X_train)}.')
+        print(f'Current length of y train: {len(y_train)}.')
         print(f'Current length of X val: {len(X_val)}.')
+        print(f'Current length of y val: {len(y_val)}.')
         print(f'Current length of X test: {len(X_test)}.')
+        print(f'Current length of y test: {len(y_test)}.')
     X_train_np = np.stack(X_train)
     X_val_np = np.stack(X_val)
     X_test_np = np.stack(X_test)
@@ -118,15 +122,15 @@ def data_setup(config):
     return trainloader, valloader, testloader
 
 def run():
-    for subj in range(1,3):
+    for subj in range(1,6): #adjust for number of subjects
         # 🐝 initialise a wandb run
         test_subject = f'X0{subj}'
         for instance in os.scandir(f"pretrain_models/{test_subject}/EEGNET_ft_v2"):
             print(f'Getting pre-trained model from {instance.path}')
-            valsubjects = instance.path[-3:]
+            valsubjects = instance.path[-7:-4]
             print(valsubjects)
 
-            trials = [0,1,2,3,4,5,6,7,8,9]
+            trials = [0,1,2,3,4,5,6,7,8,9] #adjust for number of trials
             random.seed(subj)
             for trial_num in range(1,5):
                 total = 5
@@ -205,16 +209,18 @@ def train(config=None):
         sn.set(font_scale=1.8)
         sn.heatmap(df_cm, annot=True, cbar=False)
         plt.savefig(f'./figures/confmat_{config.test_subject}_trialnum{config.trial_num}.png')
+    	'''
+
         ft_path = Path(f"finetuned_models/{config.test_subject}")
         model_name = f"EEGNET_trialnum{config.trial_num}"
         ft_path.mkdir(exist_ok=True, parents=True)  
-        #torch.save(net.state_dict(), ft_path / model_name)
-        '''
+        torch.save(net.state_dict(), ft_path / model_name)
+        
 
         
 def build_network(config):
     net = EEGNET(config.receptive_field, config.filter_sizing, config.mean_pool, config.activation_type, config.dropout, config.D)
-    net.load_state_dict(torch.load(f'pretrain_models/{config.test_subject}/EEGNET_ft_v2/EEGNET-PreTrain_val{config.val_subjects}'))
+    net.load_state_dict(torch.load(f'pretrain_models/{config.test_subject}/EEGNET_ft_v2/EEGNET-PreTrain_val{config.val_subjects}.pth'))
     pytorch_total_params_train = sum(p.numel() for p in net.parameters() if p.requires_grad)
     print(f'trainable parameters: {pytorch_total_params_train}')
     return net.to(device)

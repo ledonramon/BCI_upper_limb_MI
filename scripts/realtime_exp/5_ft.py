@@ -15,15 +15,16 @@ def execution(test_subject, session):
 
         
         # here, best_finetune is the most recent fine_tuned model, thus for session 2 this is FTsession1
-        session_num = int(session[-1])
+        #session_num = int(session[-1])
+        session_num = 1
 
         # model path and subjpath for future sessions
-        model_path = f"scripts/cl/final_models/{model_type}\{session}/EEGNET_{test_subject}"
-        savepath_newmodel = f"scripts/cl/final_models/models_for_closedloop/EEGNET_{test_subject}_{model_type}_{session}"
+        # model_path = f"scripts/cl/final_models/{model_type}\{session}/EEGNET_{test_subject}"
+        savepath_newmodel = Path(f"scripts/cl/final_models/models_for_closedloop")
+        savepath_newmodel.mkdir(exist_ok=True, parents=True)
 
         # data path below
-        testsubj_path = Path(f'./scripts/cl\intermediate_files/{session}/{test_subject}_deep.pkl')
- 
+        testsubj_path = Path(f'./scripts/cl\intermediate_files/{session}/{test_subject}_riemann.pkl') #adjust pipeline type
         print(f'Getting {model_type} for {test_subject}..')
         for i in range(3):
             train_trials = train_trial[i]
@@ -38,7 +39,7 @@ def execution(test_subject, session):
             'activation_type':  'elu',
             'network' : 'EEGNET',
             'model_type': model_type,
-            'model_path': model_path,
+            #'model_path': model_path,
             'savepath_newmodel': savepath_newmodel,
             'test_subj_path' : testsubj_path,
             'test_subject': test_subject,
@@ -61,7 +62,7 @@ def main():
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Run offline BCI analysis experiments.")
-    parser.add_argument("--subject", nargs='+', default=['X02'], help="Subject.")
-    parser.add_argument("--session", type=str, default='session4', help="Subject.")
+    parser.add_argument("--subject", nargs='+', default=['X06'], help="Subject.")
+    parser.add_argument("--session", type=str, default='session1', help="Subject.")
     FLAGS, unparsed = parser.parse_known_args()
     main()

@@ -11,7 +11,7 @@ pd.options.mode.chained_assignment = None  # default='warn'
 
 def execution(pipeline_type, subject):
     print(f'Initializing for {pipeline_type} machine learning...')
-    folder_path = Path(f'./data/openloop/intermediate_datafiles/preprocess/{subject}_TLcompare')
+    folder_path = Path(f'./data/openloop/intermediate_datafiles/preprocess/elec_exp/{pipeline_type}')
     result_path = Path(f'./results/intermediate_datafiles/TLcompare/{subject}_TLcompare_4classes')
     result_path.mkdir(exist_ok=True, parents=True)
 
@@ -26,7 +26,7 @@ def execution(pipeline_type, subject):
             train_acc_cv, val_acc_cv, val_prec_cv, val_rec_cv, train_f1_cv, val_f1_cv, \
             val_roc_auc_cv, acc_classes_cv = {}, {}, {}, {}, {}, {}, {}, {}
 
-    trials = [0,1,2,3,4,5,6,7,8,9]
+    trials = [0,1,2,3,4,5,6,7,8,9] #adjust num trials
     random.seed(int(subject[-1]))
     for trial_num in range(1,5):
         total = 5
@@ -95,10 +95,10 @@ def main():
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Run offline BCI analysis experiments.")
-    parser.add_argument("--pline", nargs='+', default=['csp'], help="The variant of pipelines used. \
+    parser.add_argument("--pline", nargs='+', default=['riemann'], help="The variant of pipelines used. \
     This variable is a list containing the name of the variants. Options are: 'csp', 'riemann', 'deep', \
     'deep_1dcnn, 'deep_inception'")
-    parser.add_argument("--subjects", nargs='+', default=['X02_wet'], help="The variant of pipelines used. \
+    parser.add_argument("--subjects", nargs='+', default=['X01','X02','X03','X04','X05'], help="The variant of pipelines used. \
     This variable is a list containing the name of the variants. Options are in the data folder.")  
     FLAGS, unparsed = parser.parse_known_args()
     main()

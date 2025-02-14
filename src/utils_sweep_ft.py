@@ -65,7 +65,7 @@ class EEGNET(nn.Module):
         return prediction
 
 def data_setup(batch_size, val_subjects):
-    alldata_path = Path(f'./data/openloop/intermediate_datafiles/preprocess/TL_1_100Hz')
+    alldata_path = Path(f'./data/openloop/intermediate_datafiles/preprocess/elec_exp/riemann')
     X_train, y_train, X_val, y_val, X_test, y_test = [], [], [], [], [], []
     for instance in os.scandir(alldata_path):
         print(f'Adding data for {instance.path}...')
@@ -89,6 +89,7 @@ def data_setup(batch_size, val_subjects):
                         X_train.append(X[df][segment])
                         y_train.append(y[df][segment])      
         print(f'Current length of X train: {len(X_train)}.')
+        print(f'Current length of X test: {len(X_test)}.')
         print(f'Current length of X val: {len(X_val)}.')
     X_train_np = np.stack(X_train)
     X_val_np = np.stack(X_val)
@@ -113,7 +114,7 @@ def data_setup(batch_size, val_subjects):
     return trainloader, valloader, testloader
 
 def run():
-    for val_subject in [['X03']]:#, ['X05'], ['X08']]:
+    for val_subject in ['X01','X02','X03','X04','X05']:#, ['X05'], ['X08']]:
         sweep_config = {
         'method': 'grid'
         }

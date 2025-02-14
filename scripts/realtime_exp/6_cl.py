@@ -6,8 +6,8 @@ import pickle
 
 #INIT EXPDATA -- change to preference
 expName = 'closedloop'
-exType = 'wet'
-expInfo = {'participant': 'X02','type': exType, 'expName' : expName, 'sessionNum': 'session3'}
+exType = 'dry'
+expInfo = {'participant': 'X06','type': exType, 'expName' : expName, 'sessionNum': 'session1'}
 
 #INIT
 filt_ord = 2
@@ -23,7 +23,7 @@ total_outlier = 0
 # init DL model
 subject = expInfo['participant']
 net = utils.EEGNET()
-path = r'scripts/cl/final_models/models_for_closedloop/EEGNET_X02_best_finetune_session3' # TODO update path later
+path = f'scripts/cl/final_models/models_for_closedloop/EEGNET_{subject}_best_finetune_session1'
 net.load_state_dict(torch.load(path, map_location=torch.device('cpu')))
 net = net.float()
 net.eval()
@@ -43,7 +43,7 @@ import time
 import msvcrt
 import datetime
 # lab streaming layer library to capture the data sent by unicorn EEG headset
-from pylsl import StreamInlet, resolve_stream
+from pylsl import StreamInlet, resolve_streams
 os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 
 #change path of folders according to your needs
@@ -89,7 +89,7 @@ ten_sec = ten_sec = visual.ShapeStim(
 # image of cross being showed
 restCross = visual.ImageStim(
     win=win, name='RestCross',
-    image=r'scripts/cl/VC_Cross.jpg', mask=None, anchor='center',
+    image='scripts/realtime_exp/VC_Cross.jpg', mask=None, anchor='center',
     ori=0.0, pos=(0, 0), size=None,
     color=[1,1,1], colorSpace='rgb', opacity=None,
     flipHoriz=False, flipVert=False,
@@ -97,7 +97,7 @@ restCross = visual.ImageStim(
 # this has been been manipulated to show random cues for the subject throughout the trial
 Cue = visual.ImageStim(
     win=win, name='Cue',
-    image=r'scripts/cl/VC_Right.jpg', mask=None, anchor='center',
+    image='scripts/realtime_exp/VC_Right.jpg', mask=None, anchor='center',
     ori=0.0, pos=(0, 0), size=None,
     color=[1,1,1], colorSpace='rgb', opacity=None,
     flipHoriz=False, flipVert=False,
@@ -112,7 +112,7 @@ focus = visual.ShapeStim(
 # blank screen for rest between cues for blinking, swallowing and other stuff
 Blank = visual.ImageStim(
     win=win, name='BlankScreen',
-    image=r'scripts/cl/VC_Blank.jpg', mask=None, anchor='center',
+    image='scripts/realtime_exp/VC_Blank.jpg', mask=None, anchor='center',
     ori=0.0, pos=(0, 0), size=None,
     color=[1,1,1], colorSpace='rgb', opacity=None,
     flipHoriz=False, flipVert=False,
@@ -120,7 +120,7 @@ Blank = visual.ImageStim(
 
 # below code is for initializing the streaming layer which will help us capture data later
 finished = False
-streams = resolve_stream()
+streams = resolve_streams()
 inlet = StreamInlet(streams[0])
 
 # Auto updating trial numbers
@@ -159,9 +159,9 @@ event.waitKeys(keyList=['return'])
 
 # image list with labels for showing randomly and storing in the database
 # creating cue list
-img_list = [(r'scripts/cl/VC_Relax.jpg',0),
-(r'scripts/cl/VC_Right.jpg',1),
-(r'scripts/cl/VC_Left.jpg',2)]*2
+img_list = [('scripts/realtime_exp/VC_Relax.jpg',0),
+('scripts/realtime_exp/VC_Right.jpg',1),
+('scripts/realtime_exp/VC_Left.jpg',2)]*2
 trials = len(img_list)
 np.random.shuffle(img_list)
 # calculating run time to shut off data capturing

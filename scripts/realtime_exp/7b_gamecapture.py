@@ -5,8 +5,8 @@ import torch
 
 #INIT EXPDATA -- change to preference
 expName = 'game'
-exType = 'wet'
-expInfo = {'participant': 'X02','type': exType, 'expName' : expName, 'sessionNum': 'session3'}
+exType = 'dry'
+expInfo = {'participant': 'X01','type': exType, 'expName' : expName, 'sessionNum': 'session1'}
 
 #INIT VARIABLES
 filt_ord = 2
@@ -22,7 +22,7 @@ total_outlier = 0
 # init DL model
 subject = expInfo['participant']
 net = utils.EEGNET()
-path = r'scripts/realtime_exp/final_models/models_for_closedloop/EEGNET_X03_best_finetune_session3' # TODO update path later
+path = f'scripts/cl/final_models/models_for_closedloop/EEGNET_{subject}_trialnum4_best_finetune_session1' # TODO update path later
 net.load_state_dict(torch.load(path, map_location=torch.device('cpu')))
 net = net.float()
 net.eval()
@@ -50,7 +50,7 @@ import time
 import msvcrt
 import datetime
 # lab streaming layer library to capture the data sent by unicorn EEG headset
-from pylsl import StreamInlet, resolve_stream
+from pylsl import StreamInlet, resolve_streams
 
 #change path of folders according to your needs
 # Data file name stem = absolute path + name; later add .psyexp, .csv, .log, etc
@@ -69,7 +69,7 @@ MI_dict = {'MI_segments' : [], 'predictions': []}
 
 # below code is for initializing the streaming layer which will help us capture data later
 finished = False
-streams = resolve_stream()
+streams = resolve_streams()
 inlet = StreamInlet(streams[0])
 
 # Auto updating trial numbers

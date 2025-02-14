@@ -22,7 +22,7 @@ def execution(pipeline_type, subject, type):
     # INIT
     electrode_names =  ['FZ', 'C3', 'CZ', 'C4', 'PZ', 'PO7', 'OZ', 'PO8']
     n_electrodes = len(electrode_names)
-    folder_path = Path(f'./data/openloop/intermediate_datafiles/preprocess/elec_exp/{subject}')
+    folder_path = Path(f'./data/openloop/intermediate_datafiles/preprocess/elec_exp/{pipeline_type}')
     result_path = Path(f'./results/intermediate_datafiles/openloop/elec_exp/{subject}')
     result_path.mkdir(exist_ok=True, parents=True)
 
@@ -48,6 +48,7 @@ def execution(pipeline_type, subject, type):
             X = data_dict['data']
             y = data_dict['labels']
             #window_size = int(instance.path.split("ws",1)[1][:3]) 
+            window_size = 500
 
             if pipeline_type[:4] == 'deep':
                 train_acc_cv, val_acc_cv, val_prec_cv, val_rec_cv, train_f1_cv, val_f1_cv, \
@@ -110,8 +111,10 @@ def execution(pipeline_type, subject, type):
                                 X_train.append(X[df][segment])
                                 y_train.append(y[df][segment]) 
 
-                    print(f'Current length of X train: {len(X_train)}.')
                     print(f'Current length of X val: {len(X_val)}.')
+                    print(f'Current length of y val: {len(y_val)}.')
+                    print(f'Current length of X train: {len(X_train)}.')
+                    print(f'Current length of y train: {len(y_train)}.')
                 X_train_np = np.stack(X_train)
                 X_val_np = np.stack(X_val)
                 y_train_np = np.array(y_train)
@@ -181,17 +184,17 @@ def execution(pipeline_type, subject, type):
                     'val_rec': np.around(np.array(val_rec_cv[clf]).mean(),3), 'val_roc_auc': np.around(np.array(val_roc_auc_cv[clf]).mean(),3), 
                     'full_valacc': val_acc_cv[clf], 'full_acc_classes': acc_classes_cv[clf]}  
             print('Finished 1 pipeline')
-    #results_df = pd.DataFrame.from_dict(results, orient='index').sort_values('final_val_accuracy', ascending=False)  
-    #results_df.to_csv(result_path / results_fname)
+    results_df = pd.DataFrame.from_dict(results, orient='index').sort_values('final_val_accuracy', ascending=False)  
+    results_df.to_csv(result_path / results_fname)
     print('Finished')
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Run offline BCI analysis experiments.")
-    parser.add_argument("--pline", nargs='+', default=['csp'], help="The variant of pipelines used. \
+    parser.add_argument("--pline", nargs='+', default=['riemann'], help="The variant of pipelines used. \
     This variable is a list containing the name of the variants. Options are: 'csp', 'riemann', 'deep', \
     'deep_1dcnn, 'deep_inception'")
-    parser.add_argument("--subjects", nargs='+', default=['X02_wet'], help="The variant of pipelines used. \
+    parser.add_argument("--subjects", nargs='+', default=['X01','X02','X03','X04','X05'], help="The variant of pipelines used. \
     This variable is a list containing the name of the variants. Options are in the data folder.")
     parser.add_argument("--type", nargs='+', default=['multiclass'], help="The variant of pipelines used. \
     This variable is a list containing the name of the variants. Options are: 'all', 'multiclass', 'arms', 'binary'")
