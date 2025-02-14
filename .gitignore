@@ -12,3 +12,4 @@ tests
 wandb
 *.csv
 *.pyc
+*.pkl
