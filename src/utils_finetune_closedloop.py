@@ -137,12 +137,15 @@ def train(config=None):
         wandb.summary['final_val_accuracy'] = val_acc
         wandb.summary['final_val_f1'] = val_f1
 
-        #torch.save(net.state_dict(), config.savepath_newmodel)
+        savepath_newmodel = Path(f"scripts/cl/final_models/models_for_closedloop")
+        savepath_newmodel.mkdir(exist_ok=True, parents=True)
+        model_name = f"EEGNET_{config.test_subject}_{config.model_type}_session1"
+        torch.save(net.state_dict(), savepath_newmodel / model_name)
 
         
 def build_network(config):
     net = EEGNET(config.receptive_field, config.filter_sizing, config.mean_pool, config.activation_type, config.dropout, config.D)
-    net.load_state_dict(torch.load(config.model_path, map_location=torch.device('cpu')))
+    #net.load_state_dict(torch.load(config.model_path, map_location=torch.device('cpu')))
     pytorch_total_params_train = sum(p.numel() for p in net.parameters() if p.requires_grad)
     print(f'trainable parameters: {pytorch_total_params_train}')
     return net.to(device)

@@ -67,9 +67,9 @@ class EEGNET(nn.Module):
 
 def data_setup(batch_size, val_subjects, test_subject):
     print(test_subject)
-    result_path = Path(f"./results/intermediate_datafiles/openloopTL/TL_pretrain_for_{test_subject}")
-    result_path.mkdir(exist_ok=True, parents=True)
-    alldata_path = Path(f'./data/openloop/intermediate_datafiles/preprocess/TL_1_100Hz')
+    #result_path = Path(f"./results/intermediate_datafiles/openloopTL/TL_pretrain_for_{test_subject}")
+    #result_path.mkdir(exist_ok=True, parents=True)
+    alldata_path = Path(f'./data/openloop/intermediate_datafiles/preprocess/elec_exp/riemann')
     X_train, y_train, X_val, y_val, X_test, y_test = [], [], [], [], [], []
     for instance in os.scandir(alldata_path):
         print(f'Adding data for {instance.path}...')
@@ -125,9 +125,9 @@ results = {}
 def run():
     global all_val_accs, results
 
-    for subj in range(1,10):
+    for subj in range(1,6): # adjust range of subjects
         test_subject = f'X0{subj}'
-        other_subjects = [1,2,3,4,5,6,7,8,9]
+        other_subjects = [1,2,3,4,5] #adjust range of subjects
         other_subjects.remove(subj)
         random.seed(subj)
 
@@ -154,10 +154,12 @@ def run():
         results[test_subject] = {'mean': round(np.mean(nparr),3),'std': round(np.std(nparr),3), 
         'max': round(np.max(nparr),3), 'allaccs' : all_val_accs, 'subjectorder': other_subjects}  
         all_val_accs = []
-
-
+    
+    result_path = Path(f"./results/intermediate_datafiles/openloopTL/TL_pretrain_for_riemann")
+    result_path.mkdir(exist_ok=True, parents=True)
+    
     results_df = pd.DataFrame.from_dict(results, orient='index')
-    results_df.to_csv('testfile.csv')
+    results_df.to_csv(result_path /'testfile.csv')
 
 def train(config=None):
     global all_val_accs
@@ -190,7 +192,13 @@ def train(config=None):
             if early_stopping.early_stop:
                 break
         all_val_accs.append(val_acc)
-        #torch.save(net.state_dict(), f'pretrain_models/{config.test_subject}/EEGNET_ft_v2/EEGNET-PreTrain_val{config.val_subjects[0]}')
+        # Define the save path
+        save_dir = Path(f'pretrain_models/{config.test_subject}/EEGNET_ft_v2')
+        save_dir.mkdir(exist_ok=True, parents=True)
+        # Define the file path
+        save_path = save_dir / f'EEGNET-PreTrain_val{config.val_subjects[0]}.pth'
+        # Save the model state dictionary
+        torch.save(net.state_dict(), str(save_path))
 
 def build_network(config):
     if config.network == 'EEGNET':
