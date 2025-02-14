@@ -34,6 +34,7 @@ Closed loop scripts are found in 'realtime_exp'.
 
 ## Additional usage instruction 
 BCI hardware setup: https://www.youtube.com/watch?v=UVVUJTwvGnw&list=PL_JwSzOwEdQQWf17SrATPC6GnzgVjmHT&index=65
+
 Connect to BCI: https://www.youtube.com/watch?v=LOfIr2F7-Tc&list=PL_JwSzOwEdQQWf17SrATPC6GnzgVjmHT&index=66  
 
 Open Unicorn Bandpower in Unicorn Suite and wait until all dots are green. Experiment a little with 
