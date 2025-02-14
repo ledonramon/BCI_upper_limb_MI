@@ -17,9 +17,9 @@ def main():
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Run offline BCI analysis experiments.")
-    parser.add_argument("--pline", nargs='+', default=['deep'], help="The variant of DL model used. \
+    parser.add_argument("--pline", nargs='+', default=['riemann'], help="The variant of DL model used. \
     This variable is a list containing the name of the variants. Options are:  'deep' or 'deep_inception'")
-    parser.add_argument("--subjects", nargs='+', default=['X01'], help="The subject to use as validation set.\
+    parser.add_argument("--subjects", nargs='+', default=['X01','X02','X03','X04','X05'], help="The subject to use as validation set.\
     Model will be trained on remaining subjects.")
     parser.add_argument("--type", nargs='+', default=['multiclass'], help="The variant of pipelines used. \
     This variable is a list containing the name of the variants. Options are: 'multiclass'.")

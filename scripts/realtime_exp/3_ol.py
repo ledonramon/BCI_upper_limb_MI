@@ -10,7 +10,7 @@ from pylsl import StreamInlet, resolve_streams
 # INIT exp data
 expName = 'openloop'
 exType = 'dry'
-expInfo = {'participant': 'X02','type': exType, 'sessionNum': 'session1'}
+expInfo = {'participant': 'X05','type': exType, 'sessionNum': 'session1'}
 result_path = Path(f'scripts/cl/Expdata/Subjects/'+exType+'/'+expInfo['participant']+'/'+expInfo['sessionNum']+'/'+expName+'/')
 result_path.mkdir(exist_ok=True, parents=True)
 
