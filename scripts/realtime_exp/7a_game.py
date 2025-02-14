@@ -1,7 +1,33 @@
+import os
+os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
+
 import pygame
 import time
 import random
 import os
+import src.realtime_utils as utils
+import torch 
+import numpy as np
+import pandas as pd
+
+#INIT EXPDATA -- change to preference
+expName = 'closedloop'
+exType = 'dry'
+expInfo = {'participant': 'X06','type': exType, 'expName' : expName, 'sessionNum': 'session1'}
+
+# init EEG stream
+from pylsl import StreamInlet, resolve_streams
+streams = resolve_streams()  
+inlet = StreamInlet(streams[0])  # Connect to EEG stream
+
+# init DL model
+subject = expInfo['participant']
+net = utils.EEGNET()
+path = f'scripts/cl/final_models/models_for_closedloop/EEGNET_{subject}_best_finetune_session1'
+net.load_state_dict(torch.load(path, map_location=torch.device('cpu')))
+net = net.float()
+net.eval()
+
 
 pygame.init()
 
@@ -78,6 +104,27 @@ def game_intro():
 
 # game loop
 def game_loop():
+    
+    #INIT
+    filt_ord = 2
+    freq_limits = np.asarray([[1,100]]) 
+    freq_limits_names = ['1_100Hz']
+    sample_duration = 125
+    sampling_frequency = 250
+    electrode_names =  ['FZ', 'C3', 'CZ', 'C4', 'PZ', 'PO7', 'OZ', 'PO8']
+    filters = utils.init_filters(freq_limits, sampling_frequency, filt_type = 'bandpass', order=filt_ord)
+    segments, labels, predictions = [], [], []
+    total_outlier = 0
+    outliers = []
+    columns=['Time','FZ', 'C3', 'CZ', 'C4', 'PZ', 'PO7', 'OZ', 'PO8','AccX','AccY','AccZ','Gyro1','Gyro2','Gyro3',
+                                  'Battery','Counter','Validation']
+    data_dict = dict((k, []) for k in columns)
+    current_seg = pd.DataFrame()
+    initial = 0
+    final = 125
+    prediction = -1
+    outliers = []
+    
     # position of car
     x = (display_width * 0.4)
     y = (display_height * 0.75)
@@ -125,6 +172,64 @@ def game_loop():
         # -----------ADD BCI STREAM CODE HERE-----------------
         #prediction = 0
         #sample, timestamp = inlet.pull_sample()
+
+        # Step 1: Get EEG Data Stream (LSL)
+        sample, timestamp = inlet.pull_sample()  # Get EEG sample from LSL
+        res = [timestamp] + sample  
+        data_dict = utils.update_data(data_dict, res) 
+        
+
+        # Step 2: Process EEG Data
+        if len(data_dict['FZ']) % 125 == 0:
+            df, initial, final = utils.segment_dict(initial, final, sample_duration, data_dict)
+            segment_filt, outlier, filters = utils.pre_processing(df, electrode_names, filters, 
+                                    sample_duration, freq_limits_names, sampling_frequency)
+            current_seg = utils.concatdata(current_seg, segment_filt)
+
+        # all columns are same now
+        #labels = []
+        
+        # inlet stuff, preprocess and predict
+        buffer = {'time':[],'sample':[]}
+        while len(buffer['sample'])<125:
+            sample, timestamp = inlet.pull_sample()
+            labels.append("cue_cls")
+            buffer['time'].append(timestamp)
+            buffer['sample'].append(sample)
+            
+            res = [timestamp] + sample 
+            data_dict = utils.update_data(data_dict,res)
+            
+            if len(data_dict['FZ']) % 125 == 0:
+                df, initial, final = utils.segment_dict(initial, final, sample_duration, data_dict)
+                segment_filt, out, filters = utils.pre_processing(df, electrode_names, filters, 
+                                sample_duration, freq_limits_names, sampling_frequency)
+                current_seg = utils.concatdata(current_seg,segment_filt)   
+                outliers.append(out)   
+
+
+        # Step 3: Make Prediction with EEGNet Model
+        if len(labels) >= 500:  # Check if enough data is collected
+            """labels_df = pd.DataFrame(labels, columns=['label'])
+            MI_state, current_label = utils.is_MI_segment(labels_df)
+            if MI_state:
+                if sum(outliers) > 0:
+                    print('OUTLIER')
+                else:"""
+            prediction = utils.do_prediction(current_seg, net)  # Predict movement
+            print(f"prediction: {prediction}")
+
+            # Step 4: Control the Game with BCI Prediction
+            if prediction == 0:  # No movement
+                x_right = 0
+                x_left = 0
+            elif prediction == 1:  # Right arm movement
+                x_right = 40  # Move right
+                x_left = 0
+            elif prediction == 2:  # Left arm movement
+                x_left = -40  # Move left
+                x_right = 0
+
         # ----------------------------------------------------
         '''
         prediction = random.randrange(0,3)
